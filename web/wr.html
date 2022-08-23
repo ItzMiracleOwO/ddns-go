@@ -23,33 +23,34 @@
             </div>
         </div>
     </header>
-
     <main role="main" style="margin-top: 15px; overflow: hidden;">
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <form>
-
-                    <button class="btn btn-primary submit_btn" style="margin-bottom: 15px;">Save</button>
-
                     <div class="alert alert-success" style="display: none;">
                         <strong id="resultMsg">保存成功</strong>
                     </div>
+                    <div class="tab">
+                        <button class="tablinks" onclick="openTab(event, 'dns')" id="defaultOpen">DNS服务商</button>
+                        <button class="tablinks" onclick="openTab(event, 'ipv4')">IPv4</button>
+                        <button class="tablinks" onclick="openTab(event, 'ipv6')">IPv6</button>
+                        <button class="tablinks" onclick="openTab(event, 'config')">其它配置</button>
+                        <button class="tablinks" onclick="openTab(event, 'webhook')">Webhook</button>
+                        <button class="tablinks" onclick="openTab(event, 'logs')">日志</button>
+                    </div>
 
-                    <div class="portlet">
-                        <div class="box-dns">
-                            <div class="box-inner">
-                        <h5 class="portlet__head">DNS服务商</h5>
+                    <div id="dns" class="portlet">
+                        <h5 class="portlet__head"></h5>
                         <div class="portlet__body">
-
                             <div class="form-group row">
-                                <label class="col-sm-2 col-form-label"></label>
+                                <label class="col-sm-2 col-form-label">DNS服务商</label>
                                 <div class="col-sm-10">
                                     <div class="form-check form-check-inline col-form-label">
                                         <input class="form-check-input" type="radio" name="DnsName" id="alidns"
                                             value="alidns" onclick="alidnsCheckedFun()"
                                             {{if eq $.DNS.Name "alidns"}}checked{{end}}>
                                         <label class="form-check-label" for="alidns">
-                                            Alidns(阿里云)
+                                            Alidns (阿里云)
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline col-form-label">
@@ -57,7 +58,7 @@
                                             value="dnspod" onclick="dnspodCheckedFun()"
                                             {{if eq $.DNS.Name "dnspod"}}checked{{end}}>
                                         <label class="form-check-label" for="dnspod">
-                                            Dnspod(腾讯云)
+                                            Dnspod (腾讯云)
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline col-form-label">
@@ -110,12 +111,11 @@
                                     <input class="form-control" name="DnsSecret" id="DnsSecret" value="{{.DNS.Secret}}">
                                 </div>
                             </div>
-</div>
-                        </div>
+
                         </div>
                     </div>
 
-                    <div class="portlet">
+                    <div id="ipv4" class="portlet">
                         <h5 class="portlet__head">IPv4</h5>
                         <div class="portlet__body">
 
@@ -169,7 +169,7 @@
                         </div>
                     </div>
 
-                    <div class="portlet">
+                    <div id="ipv6" class="portlet">
                         <h5 class="portlet__head">IPv6</h5>
                         <div class="portlet__body">
 
@@ -233,7 +233,7 @@
                         </div>
                     </div>
 
-                    <div class="portlet">
+                    <div id="config" class="portlet">
                         <h5 class="portlet__head">其它配置</h5>
                         <div class="portlet__body">
 
@@ -288,7 +288,7 @@
                         </div>
                     </div>
 
-                    <div class="portlet">
+                    <div id="webhook" class="portlet">
                         <h5 class="portlet__head">Webhook</h5>
                         <div class="portlet__body">
 
@@ -330,261 +330,293 @@
 
                         </div>
                     </div>
-
-                    <button class="btn btn-primary submit_btn" style="margin-bottom: 15px;">Save</button>
-
+                    <div id="logs" class="portlet">
+                        <div class="col-md-3">
+                            <p class="font-weight-light text-break" style="color: #ffffff; margin-top: 115px;font-size: 13px;"
+                                id="logs"></p>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="clearLogBtn">清空日志</button>
+                        </div>
+                    </div>
+                    <hr><hr>
+                    <button class="btn btn-primary submit_btn"
+                        style="margin-top: 15px; margin-bottom: 15px; background-color: #4f5d73; border: none;">保存</button>
                 </form>
             </div>
         </div>
-        <div class="col-md-3">
-            <p class="font-weight-light text-break" style="margin-top: 115px;font-size: 13px;" id="logs"></p>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="clearLogBtn">清空日志</button>
-        </div>
     </main>
+</body>
 
-    <script>
-        $(function () {
-            $(".submit_btn").on('click', function (e) {
-                e.preventDefault();
-                $('body').animate({
-                    scrollTop: 0
-                }, 300);
-                $.ajax({
-                    method: "POST",
-                    url: "./save",
-                    data: $('form').serialize(),
-                    success: function (result) {
-                        $('.alert').css("display", "block");
-                        if (result !== "ok") {
-                            $('.alert').addClass("alert-danger")
-                            $('#resultMsg').html(result)
-                        } else {
-                            // ok
-                            setTimeout(function () {
-                                $('.alert').css("display", "none");
-                            }, 3000)
-                        }
-                    },
-                    error: function (jqXHR) {
-                        alert(jqXHR.statusText);
+<script>
+    $(function () {
+        $(".submit_btn").on('click', function (e) {
+            e.preventDefault();
+            $('body').animate({
+                scrollTop: 0
+            }, 300);
+            $.ajax({
+                method: "POST",
+                url: "./save",
+                data: $('form').serialize(),
+                success: function (result) {
+                    $('.alert').css("display", "block");
+                    if (result !== "ok") {
+                        $('.alert').addClass("alert-danger")
+                        $('#resultMsg').html(result)
+                    } else {
+                        // ok
+                        setTimeout(function () {
+                            $('.alert').css("display", "none");
+                        }, 3000)
                     }
-                })
-            })
-
-        })
-
-        var beforeDnsID = ""
-
-        function alidnsCheckedFun() {
-            document.getElementById("DnsID").disabled = false
-            if (beforeDnsID)
-                document.getElementById("DnsID").value = beforeDnsID
-
-            document.getElementById("dnsIdLabel").innerHTML = "AccessKey ID"
-            document.getElementById("dnsSecretLabel").innerHTML = "AccessKey Secret"
-            document.getElementById("dns_help").innerHTML =
-                "<a target='_blank' href='https://ram.console.aliyun.com/manage/ak?spm=5176.12818093.nav-right.dak.488716d0mHaMgg'>创建 AccessKey</a>"
-        }
-
-        function dnspodCheckedFun() {
-            document.getElementById("DnsID").disabled = false
-            if (beforeDnsID)
-                document.getElementById("DnsID").value = beforeDnsID
-
-            document.getElementById("dnsIdLabel").innerHTML = "ID"
-            document.getElementById("dnsSecretLabel").innerHTML = "Token"
-            document.getElementById("dns_help").innerHTML =
-                "<a target='_blank' href='https://console.dnspod.cn/account/token'>创建密钥</a>"
-        }
-
-        function cloudflareCheckedFun() {
-            document.getElementById("dnsIdLabel").innerHTML = ""
-            beforeDnsID = document.getElementById("DnsID").value
-            document.getElementById("DnsID").disabled = true
-            document.getElementById("DnsID").value = ""
-            document.getElementById("dnsSecretLabel").innerHTML = "Token"
-            document.getElementById("dns_help").innerHTML =
-                "<a target='_blank' href='https://dash.cloudflare.com/profile/api-tokens'>创建令牌->编辑区域 DNS (使用模板)</a>"
-        }
-
-        function huaweicloudCheckedFun() {
-            document.getElementById("DnsID").disabled = false
-            if (beforeDnsID)
-                document.getElementById("DnsID").value = beforeDnsID
-
-            document.getElementById("dnsIdLabel").innerHTML = "Access Key Id"
-            document.getElementById("dnsSecretLabel").innerHTML = "Secret Access Key"
-            document.getElementById("dns_help").innerHTML =
-                "<a target='_blank' href='https://console.huaweicloud.com/iam/?locale=zh-cn#/mine/accessKey'>新增访问密钥</a>"
-        }
-
-        function callbackCheckedFun() {
-            document.getElementById("DnsID").disabled = false
-            if (beforeDnsID)
-                document.getElementById("DnsID").value = beforeDnsID
-
-            document.getElementById("dnsIdLabel").innerHTML = "URL"
-            document.getElementById("dnsSecretLabel").innerHTML = "RequestBody"
-            document.getElementById("dns_help").innerHTML =
-                "<a target='_blank' href='https://github.com/jeessy2/ddns-go#callback'>自定义回调</a> 支持的变量 #{ip}, #{domain}, #{recordType}, #{ttl}"
-        }
-
-        function baiducloudCheckedFun() {
-            document.getElementById("DnsID").disabled = false
-            if (beforeDnsID)
-                document.getElementById("DnsID").value = beforeDnsID
-            document.getElementById("dnsIdLabel").innerHTML = "AccessKey ID"
-            document.getElementById("dnsSecretLabel").innerHTML = "AccessKey Secret"
-            document.getElementById("dns_help").innerHTML =
-                "<a target='_blank' href='https://console.bce.baidu.com/iam/?_=1651763238057#/iam/accesslist'>创建 AccessKey</a><br /><a target='_blank' href='https://ticket.bce.baidu.com/#/ticket/create~productId=60&questionId=393&channel=2'>申请工单</a> DDNS 需调用 API ，而百度云相关 API 仅对申请用户开放，使用前请先提交工单申请。"
-        }
-
-        var dnsName = '{{$.DNS.Name}}'
-
-        switch (dnsName) {
-            case "dnspod": {
-                dnspodCheckedFun()
-                break;
-            }
-            case "cloudflare": {
-                cloudflareCheckedFun()
-                break;
-            }
-            case "huaweicloud": {
-                huaweicloudCheckedFun()
-                break;
-            }
-            case "callback": {
-                callbackCheckedFun()
-                break;
-            }
-            case "baiducloud": {
-                baiducloudCheckedFun()
-                break;
-            }
-            default: {
-                alidnsCheckedFun()
-                break;
-            }
-        }
-
-    </script>
-
-    <script>
-        function getLogs() {
-            $.get("./logs", function (result) {
-                $("#logs").html(result)
-            })
-        }
-        getLogs()
-        setInterval(getLogs, 5 * 1000)
-        $(function () {
-            $("#clearLogBtn").on("click", function (e) {
-                e.preventDefault();
-                $.ajax({
-                    method: "GET",
-                    url: "./clearLog",
-                    success: function () {
-                        getLogs()
-                    },
-                    error: function (jqXHR) {
-                        alert(jqXHR.statusText);
-                    }
-                })
-            })
-        })
-
-    </script>
-
-    <script>
-        var ipv4GetType = '{{$.Ipv4.GetType}}'
-        var ipv6GetType = '{{$.Ipv6.GetType}}'
-        if (ipv4GetType === "netInterface") {
-            netInterfaceClick("ipv4")
-        } else {
-            urlClick("ipv4")
-        }
-
-        if (ipv6GetType === "netInterface") {
-            netInterfaceClick("ipv6")
-        } else {
-            urlClick("ipv6")
-        }
-
-        // 点击接口获取
-        function urlClick(label) {
-            $("#" + label + "_netInterface_select").css("display", "none")
-            $("#" + label + "_url").css("display", "block")
-
-            if (label === "ipv4") {
-                $("#ipv4_url_help").html(
-                    "支持多个接口, 使用半角逗号分隔。如： https://myip4.ipip.net, https://ddns.oray.com/checkip, https://ip.3322.net"
-                )
-            } else {
-                $("#ipv6_url_help").html(
-                    "支持多个接口, 使用半角逗号分隔。如： https://myip6.ipip.net, https://speed.neu6.edu.cn/getIP.php, https://v6.ident.me"
-                )
-                $("#IPv6RegDiv").css("display", "none")
-            }
-        }
-
-        // 点击网卡获取
-        function netInterfaceClick(label) {
-            $("#" + label + "_url").css("display", "none")
-            $("#" + label + "_netInterface_select").css("display", "block")
-            if (label === "ipv4") {
-                $("#ipv4_url_help").html("通过网卡获取 IP , 建议在多宽带的路由器中使用")
-            } else {
-                $("#ipv6_url_help").html("通过网卡获取 IP , 如不指定匹配正则表达式, 将默认使用第一个 IPv6 地址")
-                $("#IPv6RegDiv").removeAttr("style")
-            }
-
-            $.get("./" + label + "NetInterface", function (result) {
-                $("#" + label + "_netInterface_select").empty()
-                if (result) {
-                    var resultJson = JSON.parse(result)
-                    for (var i = 0; i < resultJson.length; i++) {
-                        $("#" + label + "_netInterface_select").append(
-                            `<option value='${resultJson[i].Name}'>
-            ${resultJson[i].Name}(${resultJson[i].Address[0]})
-            </option>`
-                        );
-                    }
-                    // 选中
-                    if ("{{$.Ipv4.NetInterface}}" !== "") {
-                        $("#" + label + "_netInterface_select").val("{{$.Ipv4.NetInterface}}")
-                    }
-                } else {
-                    $("#" + label + "_url_help").html("<span style='color: red'>没有找到可用的网卡</span>")
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.statusText);
                 }
             })
-        }
-
-    </script>
-    <script>
-        $(function () {
-            $("#webhookTestBtn").on("click", function (e) {
-                e.preventDefault();
-                $.ajax({
-                    method: "POST",
-                    url: "./webhookTest",
-                    data: {
-                        "URL": $("#WebhookURL").val(),
-                        "RequestBody": $("#WebhookRequestBody").val()
-                    },
-                    success: function () {
-                        $("#webhookTestBtn_help").text("提交模拟测试成功, 如修改记得保存配置")
-                        setTimeout(function () {
-                            $("#webhookTestBtn_help").text("")
-                        }, 5000)
-                    },
-                    error: function (jqXHR) {
-                        alert(jqXHR.statusText);
-                    }
-                })
-            })
         })
 
-    </script>
+    })
+
+    var beforeDnsID = ""
+
+    function alidnsCheckedFun() {
+        document.getElementById("DnsID").disabled = false
+        if (beforeDnsID)
+            document.getElementById("DnsID").value = beforeDnsID
+
+        document.getElementById("dnsIdLabel").innerHTML = "AccessKey ID"
+        document.getElementById("dnsSecretLabel").innerHTML = "AccessKey Secret"
+        document.getElementById("dns_help").innerHTML =
+            "<a target='_blank' href='https://ram.console.aliyun.com/manage/ak?spm=5176.12818093.nav-right.dak.488716d0mHaMgg'>创建 AccessKey</a>"
+    }
+
+    function dnspodCheckedFun() {
+        document.getElementById("DnsID").disabled = false
+        if (beforeDnsID)
+            document.getElementById("DnsID").value = beforeDnsID
+
+        document.getElementById("dnsIdLabel").innerHTML = "ID"
+        document.getElementById("dnsSecretLabel").innerHTML = "Token"
+        document.getElementById("dns_help").innerHTML =
+            "<a target='_blank' href='https://console.dnspod.cn/account/token'>创建密钥</a>"
+    }
+
+    function cloudflareCheckedFun() {
+        document.getElementById("dnsIdLabel").innerHTML = ""
+        beforeDnsID = document.getElementById("DnsID").value
+        document.getElementById("DnsID").disabled = true
+        document.getElementById("DnsID").value = ""
+        document.getElementById("dnsSecretLabel").innerHTML = "Token"
+        document.getElementById("dns_help").innerHTML =
+            "<a target='_blank' href='https://dash.cloudflare.com/profile/api-tokens'>创建令牌->编辑区域 DNS (使用模板)</a>"
+    }
+
+    function huaweicloudCheckedFun() {
+        document.getElementById("DnsID").disabled = false
+        if (beforeDnsID)
+            document.getElementById("DnsID").value = beforeDnsID
+
+        document.getElementById("dnsIdLabel").innerHTML = "Access Key Id"
+        document.getElementById("dnsSecretLabel").innerHTML = "Secret Access Key"
+        document.getElementById("dns_help").innerHTML =
+            "<a target='_blank' href='https://console.huaweicloud.com/iam/?locale=zh-cn#/mine/accessKey'>新增访问密钥</a>"
+    }
+
+    function callbackCheckedFun() {
+        document.getElementById("DnsID").disabled = false
+        if (beforeDnsID)
+            document.getElementById("DnsID").value = beforeDnsID
+
+        document.getElementById("dnsIdLabel").innerHTML = "URL"
+        document.getElementById("dnsSecretLabel").innerHTML = "RequestBody"
+        document.getElementById("dns_help").innerHTML =
+            "<a target='_blank' href='https://github.com/jeessy2/ddns-go#callback'>自定义回调 <br /> </a> 支持的变量 #{ip}, #{domain}, #{recordType}, #{ttl}"
+    }
+
+    function baiducloudCheckedFun() {
+        document.getElementById("DnsID").disabled = false
+        if (beforeDnsID)
+            document.getElementById("DnsID").value = beforeDnsID
+        document.getElementById("dnsIdLabel").innerHTML = "AccessKey ID"
+        document.getElementById("dnsSecretLabel").innerHTML = "AccessKey Secret"
+        document.getElementById("dns_help").innerHTML =
+            "<a target='_blank' href='https://console.bce.baidu.com/iam/?_=1651763238057#/iam/accesslist'>创建 AccessKey</a><br /> DDNS 需调用 API ，而百度云相关 API 仅对申请用户开放，使用前请先<a target='_blank' href='https://ticket.bce.baidu.com/#/ticket/create~productId=60&questionId=393&channel=2'>提交工单申请</a>。"
+    }
+
+    var dnsName = '{{$.DNS.Name}}'
+
+    switch (dnsName) {
+        case "dnspod": {
+            dnspodCheckedFun()
+            break;
+        }
+        case "cloudflare": {
+            cloudflareCheckedFun()
+            break;
+        }
+        case "huaweicloud": {
+            huaweicloudCheckedFun()
+            break;
+        }
+        case "callback": {
+            callbackCheckedFun()
+            break;
+        }
+        case "baiducloud": {
+            baiducloudCheckedFun()
+            break;
+        }
+        default: {
+            alidnsCheckedFun()
+            break;
+        }
+    }
+
+</script>
+
+<script>
+    function getLogs() {
+        $.get("./logs", function (result) {
+            $("#logs").html(result)
+        })
+    }
+    getLogs()
+    setInterval(getLogs, 5 * 1000)
+    $(function () {
+        $("#clearLogBtn").on("click", function (e) {
+            e.preventDefault();
+            $.ajax({
+                method: "GET",
+                url: "./clearLog",
+                success: function () {
+                    getLogs()
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.statusText);
+                }
+            })
+        })
+    })
+
+</script>
+
+<script>
+    var ipv4GetType = '{{$.Ipv4.GetType}}'
+    var ipv6GetType = '{{$.Ipv6.GetType}}'
+    if (ipv4GetType === "netInterface") {
+        netInterfaceClick("ipv4")
+    } else {
+        urlClick("ipv4")
+    }
+
+    if (ipv6GetType === "netInterface") {
+        netInterfaceClick("ipv6")
+    } else {
+        urlClick("ipv6")
+    }
+
+    // 点击接口获取
+    function urlClick(label) {
+        $("#" + label + "_netInterface_select").css("display", "none")
+        $("#" + label + "_url").css("display", "block")
+
+        if (label === "ipv4") {
+            $("#ipv4_url_help").html(
+                "支持多个接口, 使用半角逗号分隔。如： https://myip4.ipip.net, https://ddns.oray.com/checkip, https://ip.3322.net")
+        } else {
+            $("#ipv6_url_help").html(
+                "支持多个接口, 使用半角逗号分隔。如： https://myip6.ipip.net, https://speed.neu6.edu.cn/getIP.php, https://v6.ident.me"
+            )
+            $("#IPv6RegDiv").css("display", "none")
+        }
+    }
+
+    // 点击网卡获取
+    function netInterfaceClick(label) {
+        $("#" + label + "_url").css("display", "none")
+        $("#" + label + "_netInterface_select").css("display", "block")
+        if (label === "ipv4") {
+            $("#ipv4_url_help").html("通过网卡获取 IP , 建议在多宽带的路由器中使用")
+        } else {
+            $("#ipv6_url_help").html("通过网卡获取 IP , 如不指定匹配正则表达式, 将默认使用第一个 IPv6 地址")
+            $("#IPv6RegDiv").removeAttr("style")
+        }
+
+        $.get("./" + label + "NetInterface", function (result) {
+            $("#" + label + "_netInterface_select").empty()
+            if (result) {
+                var resultJson = JSON.parse(result)
+                for (var i = 0; i < resultJson.length; i++) {
+                    $("#" + label + "_netInterface_select").append(
+                        `<option value='${resultJson[i].Name}'>
+            ${resultJson[i].Name}(${resultJson[i].Address[0]})
+            </option>`
+                    );
+                }
+                // 选中
+                if ("{{$.Ipv4.NetInterface}}" !== "") {
+                    $("#" + label + "_netInterface_select").val("{{$.Ipv4.NetInterface}}")
+                }
+            } else {
+                $("#" + label + "_url_help").html("<span style='color: red'>没有找到可用的网卡</span>")
+            }
+        })
+    }
+
+</script>
+<script>
+    $(function () {
+        $("#webhookTestBtn").on("click", function (e) {
+            e.preventDefault();
+            $.ajax({
+                method: "POST",
+                url: "./webhookTest",
+                data: {
+                    "URL": $("#WebhookURL").val(),
+                    "RequestBody": $("#WebhookRequestBody").val()
+                },
+                success: function () {
+                    $("#webhookTestBtn_help").text("提交模拟测试成功, 如修改记得保存配置")
+                    setTimeout(function () {
+                        $("#webhookTestBtn_help").text("")
+                    }, 5000)
+                },
+                error: function (jqXHR) {
+                    alert(jqXHR.statusText);
+                }
+            })
+        })
+    })
+
+</script>
+
+<script>
+    function openTab(evt, tabName) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("portlet");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabName).style.display = "flex";
+        evt.currentTarget.className += " active";
+    }
+
+</script>
+<script>
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+
+</script>
 
 </html>
